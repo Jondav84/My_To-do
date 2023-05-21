@@ -1,43 +1,58 @@
 /** @format */
+$(document).ready(function () {
+  $(document).on("click", "#toDoList li", function () {
+    $(this).toggleClass("completed");
+    updateLocalStorage();
+  });
 
-document.addEventListener("DOMContentLoaded", function () {
-  let toDoList = document.getElementById("toDoList");
-  let toDoForm = document.getElementById("toDoForm");
+  $(document).on("click", "#toDoList button", function () {
+    $(this).parent().remove();
+    updateLocalStorage();
+  });
 
-  let tasks = localStorage.getItem("tasks");
-  if (tasks) {
-    toDoList.innerHTML = tasks;
-  }
-
-  toDoForm.addEventListener("submit", function (evt) {
+  $(document).on("submit", "#toDoForm", function (evt) {
     evt.preventDefault();
 
-    let newToDo = document.createElement("li");
-    newToDo.innerText = document.getElementById("addTask").value;
+    $("#toDoList").append(
+      $("<li>")
+        .text($("#addTask").val())
+        .append(
+          $("<button>")
+            .text("x")
+            .on("click", function () {
+              $(this).parent().remove();
+              updateLocalStorage();
+            })
+        )
+    );
 
-    let rmvBtn = document.createElement("button");
-    rmvBtn.innerText = "x";
-
-    toDoList.appendChild(newToDo);
-    newToDo.appendChild(rmvBtn);
-
-    localStorage.setItem("tasks", toDoList.innerHTML);
-
-    toDoForm.reset();
+    updateLocalStorage();
+    this.reset();
   });
 
-  toDoList.addEventListener("click", function (evt) {
-    let targetTag = evt.target.tagName.toLowerCase();
-    if (targetTag === "li") {
-      if (evt.target.style.textDecoration === "line-through") {
-        evt.target.style.textDecoration = "none";
-      } else {
-        evt.target.style.textDecoration = "line-through";
-      }
-      localStorage.setItem("tasks", toDoList.innerHTML);
-    } else if (targetTag === "button") {
-      evt.target.parentNode.remove();
-      localStorage.setItem("tasks", toDoList.innerHTML);
-    }
-  });
+  function updateLocalStorage() {
+    localStorage.setItem(
+      "tasks",
+      JSON.stringify(
+        Array.from($("#toDoList li")).map((item) => $(item).text().trim())
+      )
+    );
+  }
+
+  if (localStorage.getItem("tasks")) {
+    JSON.parse(localStorage.getItem("tasks")).forEach((task) => {
+      $("#toDoList").append(
+        $("<li>")
+          .text(task)
+          .append(
+            $("<button>")
+              .text("x")
+              .on("click", function () {
+                $(this).parent().remove();
+                updateLocalStorage();
+              })
+          )
+      );
+    });
+  }
 });
