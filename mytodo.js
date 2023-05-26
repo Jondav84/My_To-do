@@ -1,35 +1,15 @@
 /** @format */
 $(document).ready(function () {
-  $(document).on("click", "#toDoList li", function () {
-    $(this).toggleClass("completed");
-    updateLocalStorage();
-  });
-
-  $(document).on("click", "#toDoList button", function () {
-    $(this).parent().remove();
-    updateLocalStorage();
-  });
-
-  $(document).on("submit", "#toDoForm", function (evt) {
-    evt.preventDefault();
-
+  if (localStorage.getItem("tasks")) {
+    JSON.parse(localStorage.getItem("tasks")).forEach((task) => {
+      addItem(task);
+    });
+  }
+  function addItem() {
     $("#toDoList").append(
-      $("<li>")
-        .text($("#addTask").val())
-        .append(
-          $("<button>")
-            .text("x")
-            .on("click", function () {
-              $(this).parent().remove();
-              updateLocalStorage();
-            })
-        )
+      $("<li>").text($("#addTask").val()).append($("<button>").text("x"))
     );
-
-    updateLocalStorage();
-    this.reset();
-  });
-
+  }
   function updateLocalStorage() {
     localStorage.setItem(
       "tasks",
@@ -38,21 +18,18 @@ $(document).ready(function () {
       )
     );
   }
-
-  if (localStorage.getItem("tasks")) {
-    JSON.parse(localStorage.getItem("tasks")).forEach((task) => {
-      $("#toDoList").append(
-        $("<li>")
-          .text(task)
-          .append(
-            $("<button>")
-              .text("x")
-              .on("click", function () {
-                $(this).parent().remove();
-                updateLocalStorage();
-              })
-          )
-      );
-    });
-  }
+  $(document).on("click", "#toDoList li", function () {
+    $(this).toggleClass("completed");
+    updateLocalStorage();
+  });
+  $(document).on("click", "#toDoList button", function () {
+    $(this).parent().remove();
+    updateLocalStorage();
+  });
+  $(document).on("submit", "#toDoForm", function (evt) {
+    evt.preventDefault();
+    addItem();
+    updateLocalStorage();
+    this.reset();
+  });
 });
